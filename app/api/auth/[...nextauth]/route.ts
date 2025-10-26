@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
@@ -10,7 +10,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Only allow specific email to access admin
       if (user.email === process.env.ADMIN_EMAIL) {
         return true;
       }
