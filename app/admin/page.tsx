@@ -2,7 +2,6 @@
 
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 export default function AdminPanel() {
   const { data: session, status } = useSession();
@@ -25,7 +24,6 @@ export default function AdminPanel() {
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUploading(true);
-
     const formData = new FormData(e.currentTarget);
 
     try {
@@ -33,14 +31,13 @@ export default function AdminPanel() {
         method: 'POST',
         body: formData,
       });
-
       const result = await response.json();
 
       if (result.success) {
-        alert('Event photo uploaded successfully! Changes will deploy shortly.');
+        alert('Event photo uploaded successfully!');
         setTitle('');
         (e.target as HTMLFormElement).reset();
-        setTimeout(fetchEvents, 3000); // Wait for GitHub to update
+        setTimeout(fetchEvents, 3000);
       } else {
         alert(`Error: ${result.error}`);
       }
@@ -62,7 +59,7 @@ export default function AdminPanel() {
       });
 
       if (response.ok) {
-        alert('Photo deleted! Changes will deploy shortly.');
+        alert('Photo deleted!');
         setTimeout(fetchEvents, 3000);
       }
     } catch (error) {
@@ -71,14 +68,14 @@ export default function AdminPanel() {
   };
 
   if (status === 'loading') {
-    return <div className="container">Loading...</div>;
+    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
   }
 
   if (!session) {
     return (
-      <div className="container">
+      <div style={{ padding: '40px', textAlign: 'center' }}>
         <h1>Admin Panel</h1>
-        <button onClick={() => signIn('github')}>
+        <button onClick={() => signIn('github')} style={{ padding: '10px 20px', fontSize: '16px' }}>
           Sign in with GitHub
         </button>
       </div>
@@ -86,115 +83,69 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="container">
-      <div className="header">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
         <h1>Event Management Admin</h1>
         <div>
           <span>Welcome, {session.user?.email}</span>
-          <button onClick={() => signOut()}>Sign Out</button>
+          <button onClick={() => signOut()} style={{ marginLeft: '10px', padding: '8px 16px' }}>
+            Sign Out
+          </button>
         </div>
       </div>
 
-      <div className="upload-section">
+      <div style={{ background: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
         <h2>Upload New Event Photo</h2>
-        <form onSubmit={handleUpload}>
+        <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <input
             type="text"
             name="title"
             placeholder="Event title (optional)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
           />
           <input
             type="file"
             name="file"
             accept="image/*"
             required
+            style={{ padding: '10px' }}
           />
-          <button type="submit" disabled={uploading}>
+          <button
+            type="submit"
+            disabled={uploading}
+            style={{
+              padding: '10px 20px',
+              background: uploading ? '#ccc' : '#0070f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: uploading ? 'not-allowed' : 'pointer'
+            }}
+          >
             {uploading ? 'Uploading...' : 'Upload Photo'}
           </button>
         </form>
       </div>
 
-      <div className="events-section">
+      <div>
         <h2>Existing Events ({events.length})</h2>
-        <div className="events-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
           {events.map((event) => (
-            <div key={event.sha} className="event-card">
-              <img src={event.url} alt={event.name} />
-              <p>{event.name}</p>
-              <button onClick={() => handleDelete(event.path, event.sha)}>
+            <div key={event.sha} style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+              <img src={event.url} alt={event.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+              <p style={{ padding: '10px', fontSize: '14px' }}>{event.name}</p>
+              <button
+                onClick={() => handleDelete(event.path, event.sha)}
+                style={{ width: '100%', padding: '10px', background: '#ff4444', color: 'white', border: 'none', cursor: 'pointer' }}
+              >
                 Delete
               </button>
             </div>
           ))}
         </div>
       </div>
-
-      <style jsx>{`
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-        }
-        .upload-section {
-          background: #f5f5f5;
-          padding: 20px;
-          border-radius: 8px;
-          margin-bottom: 30px;
-        }
-        form {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        input {
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-        button {
-          padding: 10px 20px;
-          background: #0070f3;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        button:disabled {
-          background: #ccc;
-        }
-        .events-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 20px;
-        }
-        .event-card {
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-        .event-card img {
-          width: 100%;
-          height: 200px;
-          object-fit: cover;
-        }
-        .event-card p {
-          padding: 10px;
-          font-size: 14px;
-        }
-        .event-card button {
-          width: 100%;
-          background: #ff4444;
-        }
-      `}</style>
     </div>
   );
 }
