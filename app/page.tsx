@@ -1,5 +1,9 @@
-import EventGallery from '@/components/EventGallery';
-
 export default function Home() {
-  return <EventGallery />;
+  return (
+    <div style={{ padding: '40px', textAlign: 'center' }}>
+      <h1>Event Management</h1>
+      <p>Homepage is working!</p>
+      <a href="/admin" style={{ color: 'blue', textDecoration: 'underline' }}>Go to Admin Panel</a>
+    </div>
+  );
 }
