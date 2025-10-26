@@ -1,5 +1,10 @@
 import './globals.css';
-import { SessionProvider } from './providers';
+import { Providers } from './providers';
+
+export const metadata = {
+  title: 'Event Management',
+  description: 'Event photo gallery and management system',
+};
 
 export default function RootLayout({
   children,
@@ -9,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
